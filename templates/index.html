@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WriteWise - KI-Feedback für Hausarbeiten</title>
+    <link rel="stylesheet" href="style.css">
+  
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 WriteWise</h1>
+            <p>KI-gestütztes Feedback für deine Hausarbeiten</p>
+        </div>
+        
+        <div class="content">
+            <!-- Eingabebereich -->
+            <div class="input-section">
+                <h2>Deine Hausarbeit analysieren</h2>
+                <form id="analysisForm">
+                    <textarea 
+                        id="textInput" 
+                        placeholder="Füge deine Hausarbeit hier ein... (Mindestens 10 Zeichen)"
+                    ></textarea>
+                    <div class="char-count">
+                        <span id="charCount">0</span> Zeichen
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button type="submit" class="btn" id="analyzeBtn">
+                            🔍 Feedback generieren
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Ladeanimation -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analysiere deine Hausarbeit...</p>
+            </div>
+            
+            <!-- Fehlermeldung -->
+            <div class="error" id="error"></div>
+            
+            <!-- Ergebnisse -->
+            <div class="results" id="results">
+                <h2>📝 Feedback-Ergebnisse</h2>
+                
+                <div class="feedback-category">
+                    <h3>💬 Sprachliches Feedback</h3>
+                    <div id="languageFeedback"></div>
+                </div>
+                
+                <div class="feedback-category">
+                    <h3>📊 Struktur und Aufbau</h3>
+                    <div id="structureFeedback"></div>
+                </div>
+                
+                <div class="feedback-category">
+                    <h3>🎯 Argumentation</h3>
+                    <div id="argumentationFeedback"></div>
+                </div>
+                
+                <div class="feedback-category">
+                    <h3>📋 Zusammenfassung</h3>
+                    <div id="overallSummary"></div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="newAnalysisBtn">
+                        🔄 Neue Analyse starten
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    // Zeichenzähler
+    document.getElementById('textInput').addEventListener('input', function() {
+        const count = this.value.length;
+        document.getElementById('charCount').textContent = count;
+    });
+    
+    // Formular abschicken
+    document.getElementById('analysisForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const text = document.getElementById('textInput').value.trim();
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        
+        // UI zurücksetzen
+        hideError();
+        hideResults();
+        showLoading(true);
+        analyzeBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'text': text
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                displayFeedback(data);  // Korrigiert: data statt data.feedback
+                showResults();
+            } else {
+                showError(data.error);
+            }
+            
+        } catch (error) {
+            showError('Netzwerkfehler: ' + error.message);
+        } finally {
+            showLoading(false);
+            analyzeBtn.disabled = false;
+        }
+    });
+    
+    // Feedback anzeigen (KORRIGIERTE VERSION)
+    function displayFeedback(data) {
+        const feedback = data.feedback;
+        const kiVerwendet = data.ki_verwendet;
+        
+        // Sprachliches Feedback
+        document.getElementById('languageFeedback').innerHTML = 
+            feedback.language_feedback.map(item => 
+                `<div class="feedback-item">• ${item}</div>`
+            ).join('');
+        
+        // Struktur-Feedback
+        document.getElementById('structureFeedback').innerHTML = 
+            feedback.structure_feedback.map(item => 
+                `<div class="feedback-item">• ${item}</div>`
+            ).join('');
+        
+        // Argumentation
+        document.getElementById('argumentationFeedback').innerHTML = 
+            feedback.argumentation_feedback.map(item => 
+                `<div class="feedback-item">• ${item}</div>`
+            ).join('');
+        
+        // Zusammenfassung
+        document.getElementById('overallSummary').textContent = 
+            feedback.overall_summary;
+        
+        // KI-Status hinzufügen
+        const kiStatus = document.createElement('div');
+        kiStatus.className = kiVerwendet ? 'success' : 'error';
+        kiStatus.style.marginBottom = '20px';
+        kiStatus.style.padding = '10px';
+        kiStatus.style.borderRadius = '5px';
+        kiStatus.textContent = kiVerwendet 
+            ? '✅ Analyse mit KI durchgeführt' 
+            : '⚠️ Mock-Daten (KI in Entwicklung)';
+        document.getElementById('results').prepend(kiStatus);
+    }
+    
+    // UI-Hilfsfunktionen
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+    
+    function showResults() {
+        document.getElementById('results').style.display = 'block';
+    }
+    
+    function hideResults() {
+        document.getElementById('results').style.display = 'none';
+    }
+    
+    function showError(message) {
+        document.getElementById('error').textContent = message;
+        document.getElementById('error').style.display = 'block';
+    }
+    
+    function hideError() {
+        document.getElementById('error').style.display = 'none';
+    }
+    
+    // Neue Analyse
+    document.getElementById('newAnalysisBtn').addEventListener('click', function() {
+        document.getElementById('textInput').value = '';
+        document.getElementById('charCount').textContent = '0';
+        hideResults();
+        hideError();
+    });
+    
+    // Initialisierung
+    console.log('WriteWise Frontend geladen');
+</script>
+</body>
+</html>

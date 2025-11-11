@@ -17,18 +17,22 @@ class FeedbackResponse(BaseModel):
 # DIESE ZEILE MUSS AUSSERHALB DER KLASSE STEHEN!
 FeedbackResponse.model_rebuild()
 
-llm = ChatOpenAI(
-    model="chat-default",  
-    base_url=os.getenv("OPENAI_BASE_URL"),
-    api_key=os.getenv("OPENAI_API_KEY")
-)
-parser = PydanticOutputParser(pydantic_object=FeedbackResponse)
+def analyze_hausarbeit(text: str) -> dict:
+    """Analysiert Hausarbeit und gibt strukturiertes Feedback zurück"""
+    
+    llm = ChatOpenAI(
+        model="chat-default",  
+        base_url=os.getenv("OPENAI_BASE_URL"),
+        api_key=os.getenv("OPENAI_API_KEY")
+    )
+    
+    parser = PydanticOutputParser(pydantic_object=FeedbackResponse)
 
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            """
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                """
 Du bist ein akademischer Assistent, der Hausarbeiten analysiert und konstruktives Feedback gibt. 
 Deine Aufgabe ist es, dem Benutzer die Arbeit zu verbessern, indem du Feedback in den folgenden Bereichen gibst:
 
@@ -46,25 +50,46 @@ Systemanforderungen:
 
 {format_instructions}
 """,
-        ),
-        ("human", "{query}"),
-    ]
-).partial(format_instructions=parser.get_format_instructions())
+            ),
+            ("human", "{query}"),
+        ]
+    ).partial(format_instructions=parser.get_format_instructions())
 
-test_text = """
-In dieser Hausarbeit werde ich die Auswirkungen des Klimawandels auf die Landwirtschaft in Deutschland untersuchen. 
-Der Klimawandel ist ein wichtiges Thema und betrifft uns alle. Die Landwirtschaft muss sich anpassen 
-und neue Methoden finden. Es gibt viele Studien dazu, die verschiedene Aspekte beleuchten.
-"""
+    chain = prompt | llm | parser
 
-chain = prompt | llm | parser
+    try:
+        response = chain.invoke({"query": text})
+        
+        # Konvertiere Pydantic-Modell zu Dictionary für Flask
+        return {
+            'language_feedback': response.language_feedback,
+            'structure_feedback': response.structure_feedback,
+            'argumentation_feedback': response.argumentation_feedback,
+            'overall_summary': response.overall_summary
+        }
+        
+    except Exception as e:
+        print(f"❌ Fehler bei KI-Analyse: {e}")
+        # Fallback-Feedback
+        return {
+            'language_feedback': [f'Analyse fehlgeschlagen: {str(e)}'],
+            'structure_feedback': [],
+            'argumentation_feedback': [],
+            'overall_summary': 'Fehler bei der Analyse'
+        }
 
-try:
-    response = chain.invoke({"query": f"Bitte analysiere diese Hausarbeit: {test_text}"})
-    print("Feedback erhalten:")
-    print(f"Sprache: {response.language_feedback}")
-    print(f"Struktur: {response.structure_feedback}")
-    print(f"Argumentation: {response.argumentation_feedback}")
-    print(f"Zusammenfassung: {response.overall_summary}")
-except Exception as e:
-    print(f"Fehler: {e}")
+# Test-Code nur wenn direkt ausgeführt
+if __name__ == "__main__":
+    test_text = """
+    In dieser Hausarbeit werde ich die Auswirkungen des Klimawandels auf die Landwirtschaft in Deutschland untersuchen. 
+    Der Klimawandel ist ein wichtiges Thema und betrifft uns alle. Die Landwirtschaft muss sich anpassen 
+    und neue Methoden finden. Es gibt viele Studien dazu, die verschiedene Aspekte beleuchten.
+    """
+    
+    print("🧪 Teste KI-Analyse...")
+    result = analyze_hausarbeit(test_text)
+    print("✅ Analyse erfolgreich!")
+    print(f"Sprache: {result['language_feedback']}")
+    print(f"Struktur: {result['structure_feedback']}")
+    print(f"Argumentation: {result['argumentation_feedback']}")
+    print(f"Zusammenfassung: {result['overall_summary']}")

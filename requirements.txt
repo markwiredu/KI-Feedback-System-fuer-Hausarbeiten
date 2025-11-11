@@ -1,7 +1,8 @@
 langchain
-wikipedia 
-langchain-community 
-langchain-openai 
-langchain-anthropic 
-python-dotenv 
-pydantic 
+wikipedia
+langchain-community
+langchain-openai
+langchain-anthropic
+python-dotenv
+pydantic
+flask==2.3.3
