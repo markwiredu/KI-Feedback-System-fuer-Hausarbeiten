@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WriteWise - KI-Feedback für Hausarbeiten</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 WriteWise</h1>
-            <p>KI-gestütztes Feedback für deine Hausarbeiten</p>
+            <h1> WriteWise</h1>
+            <p> Feedback für deine Hausarbeiten</p>
         </div>
         
         <div class="content">
             <!-- Eingabebereich -->
             <div class="input-section">
-                <h2>Deine Hausarbeit analysieren</h2>
+                <h2>Lass uns deine Hausarbeit analysieren!</h2>
                 <form id="analysisForm">
                     <textarea 
                         id="textInput" 
@@ -110,7 +110,7 @@
             const data = await response.json();
             
             if (data.success) {
-                displayFeedback(data);  // Korrigiert: data statt data.feedback
+                displayFeedback(data);  
                 showResults();
             } else {
                 showError(data.error);
@@ -124,7 +124,7 @@
         }
     });
     
-    // Feedback anzeigen (KORRIGIERTE VERSION)
+    // Feedback anzeigen 
     function displayFeedback(data) {
         const feedback = data.feedback;
         const kiVerwendet = data.ki_verwendet;

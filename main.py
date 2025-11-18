@@ -14,7 +14,7 @@ class FeedbackResponse(BaseModel):
     argumentation_feedback: List[str]
     overall_summary: Optional[str] = None
 
-# DIESE ZEILE MUSS AUSSERHALB DER KLASSE STEHEN!
+
 FeedbackResponse.model_rebuild()
 
 def analyze_hausarbeit(text: str) -> dict:
@@ -60,7 +60,7 @@ Systemanforderungen:
     try:
         response = chain.invoke({"query": text})
         
-        # Konvertiere Pydantic-Modell zu Dictionary für Flask
+        # Konvertiert Pydantic-Modell zu Dictionary für Flask
         return {
             'language_feedback': response.language_feedback,
             'structure_feedback': response.structure_feedback,
