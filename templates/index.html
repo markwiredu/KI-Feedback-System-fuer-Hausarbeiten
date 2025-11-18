@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WriteWise - KI-Feedback für Hausarbeiten</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  
+    
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1> WriteWise</h1>
-            <p> Feedback für deine Hausarbeiten</p>
+            <p>KI-Feedback für deine Hausarbeiten</p>
         </div>
         
         <div class="content">
@@ -21,8 +21,19 @@
                 <form id="analysisForm">
                     <textarea 
                         id="textInput" 
-                        placeholder="Füge deine Hausarbeit hier ein... (Mindestens 10 Zeichen)"
+                        placeholder="Füge deine Hausarbeit hier ein... (Mindestens 50 Zeichen)"
                     ></textarea>
+
+                    <!-- Datei-Upload Bereich -->
+                    <div class="file-upload-section">
+                        <h3>📎 Oder Datei hochladen</h3>
+                        <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.doc">
+                        <small>Unterstützte Formate: TXT, PDF, DOCX (max. 16MB)</small>
+                        <div id="fileInfo" class="file-info" style="display: none;">
+                            📄 <span id="fileName"></span> - <span id="fileSize"></span>
+                        </div>
+                    </div>
+                    
                     <div class="char-count">
                         <span id="charCount">0</span> Zeichen
                     </div>
@@ -67,6 +78,13 @@
                     <h3>📋 Zusammenfassung</h3>
                     <div id="overallSummary"></div>
                 </div>
+
+                <!-- Export Bereich -->
+                <div class="export-section">
+             <h3>📥 Feedback exportieren</h3>
+         <button class="btn export-btn" data-format="txt">📝 Als TXT</button>
+               <button class="btn export-btn" data-format="pdf">📄 Als PDF</button>
+             </div>
                 
                 <div style="text-align: center; margin-top: 20px;">
                     <button class="btn" id="newAnalysisBtn">
@@ -76,6 +94,7 @@
             </div>
         </div>
     </div>
+
 <script>
     // Zeichenzähler
     document.getElementById('textInput').addEventListener('input', function() {
@@ -83,12 +102,42 @@
         document.getElementById('charCount').textContent = count;
     });
     
-    // Formular abschicken
+    // Datei-Upload Handling
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const fileInfo = document.getElementById('fileInfo');
+        
+        if (file) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            fileInfo.style.display = 'block';
+            
+            // Textarea leeren wenn Datei ausgewählt
+            document.getElementById('textInput').value = '';
+            document.getElementById('charCount').textContent = '0';
+        } else {
+            fileInfo.style.display = 'none';
+        }
+    });
+    
+    // Formular abschicken (ANGEPASST für Datei-Upload)
     document.getElementById('analysisForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const text = document.getElementById('textInput').value.trim();
+        const formData = new FormData();
+        const textInput = document.getElementById('textInput').value.trim();
+        const fileInput = document.getElementById('fileInput').files[0];
         const analyzeBtn = document.getElementById('analyzeBtn');
+        
+        // Prüfen ob Text oder Datei vorhanden
+        if (fileInput) {
+            formData.append('file', fileInput);
+        } else if (textInput) {
+            formData.append('text', textInput);
+        } else {
+            showError('Bitte Text eingeben oder Datei hochladen');
+            return;
+        }
         
         // UI zurücksetzen
         hideError();
@@ -99,12 +148,7 @@
         try {
             const response = await fetch('/analyze', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    'text': text
-                })
+                body: formData  // WICHTIG: Kein Content-Type Header bei FormData!
             });
             
             const data = await response.json();
@@ -124,7 +168,7 @@
         }
     });
     
-    // Feedback anzeigen 
+    // Feedback anzeigen (ERWEITERT für Export)
     function displayFeedback(data) {
         const feedback = data.feedback;
         const kiVerwendet = data.ki_verwendet;
@@ -161,6 +205,39 @@
             ? '✅ Analyse mit KI durchgeführt' 
             : '⚠️ Mock-Daten (KI in Entwicklung)';
         document.getElementById('results').prepend(kiStatus);
+        
+        // Datei-Info anzeigen falls verwendet
+        if (data.file_used) {
+            const fileInfo = document.createElement('div');
+            fileInfo.className = 'success';
+            fileInfo.style.marginBottom = '10px';
+            fileInfo.textContent = '✅ Analyse aus hochgeladener Datei';
+            document.getElementById('results').prepend(fileInfo);
+        }
+        
+        // Export-Buttons aktivieren
+        document.querySelectorAll('.export-btn').forEach(btn => {
+            btn.dataset.resultid = data.result_id;
+        });
+    }
+    
+    // Export-Funktionalität
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('export-btn')) {
+            const format = e.target.dataset.format;
+            const resultId = e.target.dataset.resultid;
+            
+            if (!resultId) {
+                showError('Kein Ergebnis zum Exportieren verfügbar');
+                return;
+            }
+            
+            exportFeedback(resultId, format);
+        }
+    });
+    
+    function exportFeedback(resultId, format) {
+        window.open(`/export/${format}/${resultId}`, '_blank');
     }
     
     // UI-Hilfsfunktionen
@@ -185,16 +262,18 @@
         document.getElementById('error').style.display = 'none';
     }
     
-    // Neue Analyse
+    // Neue Analyse (ERWEITERT für Datei-Reset)
     document.getElementById('newAnalysisBtn').addEventListener('click', function() {
         document.getElementById('textInput').value = '';
         document.getElementById('charCount').textContent = '0';
+        document.getElementById('fileInput').value = '';
+        document.getElementById('fileInfo').style.display = 'none';
         hideResults();
         hideError();
     });
     
     // Initialisierung
-    console.log('WriteWise Frontend geladen');
+    console.log('WriteWise Frontend mit Datei-Upload geladen');
 </script>
 </body>
 </html>

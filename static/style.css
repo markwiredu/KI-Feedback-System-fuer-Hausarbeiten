@@ -163,4 +163,46 @@
             border-radius: 6px;
             margin: 15px 0;
         }
-  
+
+        /* Zusätzliches CSS für die neuen Elemente */
+        .file-upload-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #ddd;
+        }
+        
+        .file-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .export-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f4fd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .export-btn {
+            margin: 5px;
+            background: #27ae60;
+        }
+        
+        .export-btn:hover {
+            background: #219653;
+        }
+        
+        #fileInput {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+    

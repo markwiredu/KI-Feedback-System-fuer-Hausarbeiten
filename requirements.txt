@@ -6,3 +6,8 @@ langchain-anthropic
 python-dotenv
 pydantic
 flask==2.3.3
+# NEUE ABHÄNGIGKEITEN FÜR WOCHE 2:
+python-magic==0.4.27    # Für Dateityp-Erkennung
+PyPDF2==3.0.1           # Für PDF-Text-Extraktion
+python-docx==1.1.0      # Für Word-Dateien
+reportlab==4.0.7    # NEU für PDF-Export
