@@ -1,0 +1,31 @@
+{
+  "id": "20251204_183411",
+  "timestamp": "2025-12-04T18:34:11.625947",
+  "text_preview": "Die Bedeutung der Digitalisierung in der modernen Gesellschaft\r\n\r\nDie Digitalisierung prägt heute nahezu alle Bereiche des gesellschaftlichen Lebens. Sie beschreibt den Prozess, bei dem analoge Inform",
+  "text_length": 200,
+  "file_used": false,
+  "feedback": {
+    "language_feedback": [
+      "Der Text ist weitgehend grammatikalisch korrekt, jedoch gibt es stilistische Wiederholungen (z. B. das Wort „Digitalisierung“ häufig hintereinander). Verwenden Sie Synonyme oder Umformulierungen, um die Lesbarkeit zu erhöhen.",
+      "Einige Sätze sind recht lang („Digitale Lernplattformen ermöglichen einen ortsunabhängigen Zugang zu Wissen und fördern individuelles Lernen.“). Kürzere Sätze verbessern das Verständnis.",
+      "Achten Sie auf die Groß‑ und Kleinschreibung bei Fachbegriffen (z. B. „E‑Commerce“ statt „E-Commerce\" in manchen Schreibweisen) und setzen Sie Bindestriche konsistent ein."
+    ],
+    "structure_feedback": [
+      "Die Arbeit besitzt eine klare Einleitung, einen Mittelteil und ein Fazit, was grundsätzlich gut ist.",
+      "Der rote Faden könnte durch klare Überschriften (z. B. „Wirtschaft“, „Bildung“, „Sozialer Bereich“) noch stärker hervorgehoben werden.",
+      "Ein expliziter Leitgedanke oder eine These in der Einleitung fehlt; dieser sollte die Erwartungshaltung des Lesers steuern."
+    ],
+    "argumentation_feedback": [
+      "Die genannten Auswirkungen sind nachvollziehbar, jedoch bleiben sie sehr allgemein. Untermauern Sie die Aussagen mit konkreten Beispielen, Statistiken oder Literaturverweisen (z. B. Wachstumszahlen im E‑Commerce).",
+      "Gegenargumente werden kaum angesprochen. Eine kritische Gegenüberstellung von Nutzen und Risiken (z. B. Arbeitsmarkt‑Veränderungen) würde die Argumentationskraft erhöhen.",
+      "Der Zusammenhang zwischen den einzelnen Bereichen (Wirtschaft, Bildung, Gesellschaft) könnte durch verbindende Übergänge deutlicher gemacht werden."
+    ],
+    "overall_summary": "Der Text liefert eine solide Übersicht über die Bedeutung der Digitalisierung, leidet jedoch an fehlender Tiefe und Präzision in der Argumentation. Durch strukturelle Verfeinerungen, konkrete Belege und stilistische Optimierungen lässt sich die Arbeit deutlich stärken und überzeugender gestalten."
+  },
+  "analysis_categories": [
+    "language_feedback",
+    "structure_feedback",
+    "argumentation_feedback",
+    "overall_summary"
+  ]
+}

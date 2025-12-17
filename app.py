@@ -12,7 +12,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.units import inch
 
-# Deinen bestehenden KI-Code importieren
+# Import des bestehenden KI-Moduls aus dem Hauptskript
 sys.path.append(os.path.dirname(__file__))
 
 try:
@@ -25,17 +25,37 @@ except ImportError as e:
 
 # Flask App initialisieren
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+# Maximale Dateigröße auf 16MB setzen
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-# Ordner für Woche 2 erstellen
-os.makedirs('uploads', exist_ok=True)
-os.makedirs('results', exist_ok=True)
-os.makedirs('exports', exist_ok=True)
+# Erforderliche Ordner für die Anwendung erstellen
+os.makedirs('uploads', exist_ok=True)    # Für hochgeladene Dateien
+os.makedirs('results', exist_ok=True)    # Für Analyseergebnisse
+os.makedirs('exports', exist_ok=True)    # Für Export-Dateien
 
 def extract_text_from_file(file):
-    """Extrahiert Text aus verschiedenen Dateiformaten"""
+    """
+    Extrahiert Text aus einer Datei (TXT, PDF, DOCX).
+    
+    Die Funktion erkennt den Dateityp automatisch anhand des MIME-Typs
+    und liest den Text je nach Format mit der passenden Bibliothek aus.
+    
+    Args:
+        file: Dateiobjekt, das eingelesen werden soll
+        
+    Returns:
+        str: Der extrahierte Text
+        
+    Raises:
+        Exception: Wenn das Dateiformat nicht unterstützt wird oder
+                   das Lesen fehlschlägt
+    
+    Note:
+        Unterstützte Formate: TXT, PDF, DOCX, DOC
+        Verwendet die 'magic'-Bibliothek zur MIME-Typ-Erkennung
+    """
     file_type = magic.from_buffer(file.read(1024), mime=True)
-    file.seek(0)  # Zurück zum Dateianfang
+    file.seek(0)
     
     if file_type == 'text/plain':
         return file.read().decode('utf-8')
@@ -50,7 +70,10 @@ def extract_text_from_file(file):
         except Exception as e:
             raise Exception(f"PDF konnte nicht gelesen werden: {str(e)}")
     
-    elif file_type in ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword']:
+    elif file_type in [
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword'
+    ]:
         try:
             doc = Document(file)
             text = ""
@@ -63,15 +86,35 @@ def extract_text_from_file(file):
     else:
         raise Exception(f"Nicht unterstütztes Dateiformat: {file_type}")
 
+
 def validate_text_content(text):
-    """Erweiterte Textvalidierung für Woche 2"""
+    """
+    Prüft Text auf Mindestlänge, Maximallänge und ausreichenden Inhalt.
+    
+    Die Funktion kontrolliert:
+        - Mindestlänge (50 Zeichen)
+        - Maximallänge (20.000 Zeichen)
+        - Mindestanzahl an Wörtern (10)
+    
+    Args:
+        text (str): Der zu prüfende Text
+        
+    Returns:
+        list: Liste gefundener Probleme. Leere Liste, wenn der Text gültig ist
+    
+    Example:
+        >>> issues = validate_text_content("Kurzer Text")
+        >>> print(issues)
+        ['Text zu kurz (mindestens 50 Zeichen erforderlich)', 
+         'Text enthält zu wenige Wörter für sinnvolle Analyse']
+    """
     issues = []
     
     # Basis-Validierung
-    if not text or len(text.strip()) < 50:  # Erhöht auf 50 Zeichen
+    if not text or len(text.strip()) < 50:
         issues.append("Text zu kurz (mindestens 50 Zeichen erforderlich)")
     
-    if len(text) > 20000:  # Erhöhtes Limit für Dateien
+    if len(text) > 20000:
         issues.append("Text zu lang (maximal 20.000 Zeichen)")
     
     # Inhaltliche Validierung
@@ -81,8 +124,28 @@ def validate_text_content(text):
     
     return issues
 
+
 def create_pdf_feedback(result_id, data):
-    """Erstellt ein professionelles PDF-Feedback"""
+    """
+    Erstellt ein professionelles PDF-Feedback-Dokument.
+    
+    Die Funktion generiert ein formatiertes PDF mit allen Analyseergebnissen
+    und Metadaten im WriteWise-Stil.
+    
+    Args:
+        result_id (str): Eindeutige ID des Analyseergebnisses
+        data (dict): Analyseergebnisse und Metadaten
+        
+    Returns:
+        str: Pfad zur erstellten PDF-Datei
+        
+    Raises:
+        Exception: Wenn die PDF-Erstellung fehlschlägt
+        
+    Note:
+        Verwendet ReportLab für die PDF-Generierung mit benutzerdefinierten Stilen
+        und Layouts im WriteWise-Design
+    """
     try:
         export_path = f'exports/feedback_{result_id}.pdf'
         
@@ -90,7 +153,7 @@ def create_pdf_feedback(result_id, data):
         doc = SimpleDocTemplate(export_path, pagesize=letter)
         styles = getSampleStyleSheet()
         
-        # Custom Styles
+        # Custom Styles für WriteWise-Design
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
@@ -163,20 +226,62 @@ def create_pdf_feedback(result_id, data):
     except Exception as e:
         raise Exception(f"PDF-Erstellung fehlgeschlagen: {str(e)}")
 
-# Einfache Route für die Startseite
+
 @app.route('/')
 def index():
+    """
+    Hauptroute der Anwendung - Rendert die Startseite.
+    
+    Returns:
+        str: Gerenderte HTML-Template 'index.html'
+    """
     return render_template('index.html')
 
-# Route für Textanalyse (erweitert für Woche 2)
+
 @app.route('/analyze', methods=['POST'])
 def analyze_text():
+    """
+    Analysiert Text oder Datei und gibt Feedback zurück.
+    
+    Diese Route akzeptiert entweder direkt eingegebenen Text oder eine hochgeladene
+    Datei (TXT, PDF, DOCX), extrahiert den Text, führt eine Validierung durch
+    und startet die KI-Analyse oder verwendet Mock-Daten.
+    
+    Request:
+        POST mit Form-Daten:
+            - text: Direkter Textinput (optional)
+            - file: Datei-Upload (optional)
+        
+    Returns:
+        JSON: Erfolg/Misserfolg mit Analyseergebnissen oder Fehlermeldung
+        
+        Bei Erfolg:
+            {
+                'success': True,
+                'feedback': { ... },
+                'ki_verwendet': bool,
+                'result_id': str,
+                'file_used': bool,
+                'text_length': int,
+                'timestamp': str
+            }
+        
+        Bei Fehler:
+            {
+                'success': False,
+                'error': str
+            }
+            
+    Raises:
+        413: Wenn die Datei zu groß ist (>16MB)
+        400: Bei Validierungsfehlern oder nicht unterstützten Dateiformaten
+    """
     try:
         text = ""
         file = request.files.get('file')
         file_used = False
         
-        # Text aus Datei oder direkter Eingabe (NEU)
+        # Text aus Datei oder direkter Eingabe
         if file and file.filename:
             if file.filename == '':
                 return jsonify({'success': False, 'error': 'Keine Datei ausgewählt'})
@@ -207,7 +312,7 @@ def analyze_text():
             # Text aus Formular-Feld
             text = request.form.get('text', '')
         
-        # Erweiterte Validierung (NEU)
+        # Erweiterte Validierung
         validation_issues = validate_text_content(text)
         if validation_issues:
             return jsonify({
@@ -228,7 +333,7 @@ def analyze_text():
             print("ℹ️ Verwende Mock-Feedback")
             feedback = create_mock_feedback()
         
-        # Ergebnis speichern (NEU für Woche 2)
+        # Ergebnis speichern
         result_id = save_feedback(feedback, text[:200], file_used)
         
         # Erfolgsmeldung zurückgeben
@@ -236,8 +341,8 @@ def analyze_text():
             'success': True,
             'feedback': feedback,
             'ki_verwendet': KI_VERFUEGBAR,
-            'result_id': result_id,  # NEU
-            'file_used': file_used,  # NEU
+            'result_id': result_id,
+            'file_used': file_used,
             'text_length': len(text),
             'timestamp': datetime.now().isoformat()
         })
@@ -248,10 +353,29 @@ def analyze_text():
             'error': f'Server Fehler: {str(e)}'
         })
 
+
 def save_feedback(feedback, text_preview, file_used=False):
-    """Speichert Feedback als JSON mit erweiterter Struktur (NEU)"""
-    result_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    """
+    Speichert Feedback als JSON-Datei.
     
+    Die Funktion erzeugt eine eindeutige ID, sammelt Metadaten
+    (Zeitstempel, Textlänge, Kategorien) und speichert alles formatiert
+    im Ordner "results/".
+    
+    Args:
+        feedback (dict): Analyseergebnisse als Kategorien und Inhalte
+        text_preview (str): Kurzer Auszug des analysierten Textes (max 200 Zeichen)
+        file_used (bool): Ob die Analyse aus einer Datei stammt
+        
+    Returns:
+        str: Die erzeugte Ergebnis-ID (gleichzeitig Dateiname ohne Erweiterung)
+        
+    Note:
+        Dateiname: YYYYMMDD_HHMMSS.json im 'results/' Ordner
+        Strukturierte JSON-Daten mit UTF-8 Kodierung
+    """
+    result_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+
     result_data = {
         'id': result_id,
         'timestamp': datetime.now().isoformat(),
@@ -261,18 +385,28 @@ def save_feedback(feedback, text_preview, file_used=False):
         'feedback': feedback,
         'analysis_categories': list(feedback.keys())
     }
-    
+
     with open(f'results/{result_id}.json', 'w', encoding='utf-8') as f:
         json.dump(result_data, f, indent=2, ensure_ascii=False)
-    
+
     return result_id
 
+
 def create_mock_feedback():
-    """Fallback-Feedback falls KI nicht verfügbar"""
+    """
+    Erstellt Fallback-Feedback falls KI nicht verfügbar.
+    
+    Returns:
+        dict: Mock-Feedback-Struktur mit Platzhalterdaten
+        
+    Note:
+        Wird verwendet, wenn das KI-Modul nicht importiert werden kann
+        oder die KI-Analyse fehlschlägt
+    """
     return {
         'language_feedback': [
             'Text ist verständlich geschrieben',
-            'Gute Satzstruktur erkennable',
+            'Gute Satzstruktur erkennbar',
             '⚠️ Echte KI-Analyse nicht verfügbar - dies ist Mock-Daten'
         ],
         'structure_feedback': [
@@ -288,10 +422,21 @@ def create_mock_feedback():
         'overall_summary': 'Gute Grundlage! Aktuell mit Mock-Daten. Echte KI folgt in der nächsten Version.'
     }
 
-# Export-Routen
+
 @app.route('/export/txt/<result_id>')
 def export_txt(result_id):
-    """Exportiert Feedback als TXT Datei"""
+    """
+    Exportiert Feedback als TXT Datei.
+    
+    Args:
+        result_id (str): ID des zu exportierenden Ergebnisses
+        
+    Returns:
+        File: TXT-Datei als Download oder JSON-Fehler
+        
+    Raises:
+        404: Wenn das Ergebnis nicht gefunden wird
+    """
     try:
         filepath = f'results/{result_id}.json'
         if not os.path.exists(filepath):
@@ -330,9 +475,21 @@ def export_txt(result_id):
     except Exception as e:
         return jsonify({'success': False, 'error': f'Export fehlgeschlagen: {str(e)}'})
 
+
 @app.route('/export/pdf/<result_id>')
 def export_pdf(result_id):
-    """Exportiert Feedback als PDF Datei"""
+    """
+    Exportiert Feedback als PDF Datei.
+    
+    Args:
+        result_id (str): ID des zu exportierenden Ergebnisses
+        
+    Returns:
+        File: PDF-Datei als Download oder JSON-Fehler
+        
+    Raises:
+        404: Wenn das Ergebnis nicht gefunden wird
+    """
     try:
         filepath = f'results/{result_id}.json'
         if not os.path.exists(filepath):
@@ -349,9 +506,18 @@ def export_pdf(result_id):
     except Exception as e:
         return jsonify({'success': False, 'error': f'PDF-Export fehlgeschlagen: {str(e)}'})
 
-# Health Check Route (aktualisiert)
+
 @app.route('/health')
 def health_check():
+    """
+    Health Check Endpoint für Monitoring.
+    
+    Returns:
+        JSON: Statusinformationen der Anwendung
+        
+    Note:
+        Wird für Load Balancer, Monitoring-Tools und Systemchecks verwendet
+    """
     return jsonify({
         'status': 'OK', 
         'message': 'WriteWise API läuft',
@@ -360,9 +526,15 @@ def health_check():
         'features': ['Datei-Upload', 'TXT-Export', 'PDF-Export', 'Erweiterte Validierung']
     })
 
-# Info Route (aktualisiert)
+
 @app.route('/info')
 def info():
+    """
+    Informationsendpunkt mit Anwendungsdetails.
+    
+    Returns:
+        JSON: Technische Informationen und unterstützte Features
+    """
     return jsonify({
         'name': 'WriteWise',
         'version': '2.0',
@@ -372,12 +544,73 @@ def info():
         'export_formats': ['TXT', 'PDF']  
     })
 
+
 # App starten
 if __name__ == '__main__':
-    print("🚀 WriteWise Woche 2 gestartet!")
-    print("📝 Öffne: http://localhost:5000")
-    print("📁 Datei-Upload: TXT, PDF, DOCX unterstützt")
-    print("📤 Export: TXT und PDF verfügbar")
-    print("🔍 Health Check: http://localhost:5000/health")
-    print("ℹ️  Info: http://localhost:5000/info")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    """
+    Hauptausführungspunkt der WriteWise-Anwendung.
+    
+    Startet den Flask-Entwicklungsserver mit folgenden Konfigurationen:
+    - Debug-Modus für detaillierte Fehlerinformationen während der Entwicklung
+    - Netzwerkzugriff auf allen Schnittstellen (0.0.0.0) für lokales Testing
+    - Standard-Port 5000 für HTTP-Kommunikation
+    
+    Technische Entscheidung:
+    Verwendung des integrierten Flask-Entwicklungsservers statt
+    Produktions-Server (wie Gunicorn oder uWSGI), da WriteWise aktuell
+    als Prototyp/Entwicklungsumgebung dient.
+    """
+    
+    print("=" * 60)
+    print("🤖 WRITEWISE - KI-FEEDBACK FÜR HAUSARBEITEN")
+    print("=" * 60)
+    print("\n📋 SYSTEMÜBERSICHT")
+    print("-" * 40)
+    print("✅ Backend:        Flask Web Framework")
+    print("✅ KI-Integration: LangChain mit OpenAI API")
+    print("✅ Frontend:       Responsive Web-Oberfläche")
+    print("\n🚀 STARTE ANWENDUNG...")
+    print("-" * 40)
+    print(f"📡 Server:         http://localhost:5000")
+    print(f"🌐 Netzwerk:       http://192.168.x.x:5000")
+    print(f"⚡ Debug-Modus:    AKTIV (für Entwicklung)")
+    
+    print("\n🔧 FUNKTIONALITÄTEN")
+    print("-" * 40)
+    print("📝 Texteingabe:    Manuelle Eingabe oder Datei-Upload")
+    print("📁 Dateiformate:   TXT, PDF, DOCX, DOC")
+    print("🤖 KI-Analyse:     Sprache • Struktur • Argumentation")
+    print("📤 Export:         TXT und PDF Download")
+    print("🛡️  Sicherheit:     Validierung + Error-Handling")
+    
+    print("\n🔗 DIAGNOSE-LINKS")
+    print("-" * 40)
+    print("🏥 Health Check:   http://localhost:5000/health")
+    print("ℹ️  System-Info:    http://localhost:5000/info")
+    print("📊 API-Testing:    Thunder Client / Postman empfohlen")
+    
+    print("\n⚠️  HINWEISE")
+    print("-" * 40)
+    print("• Entwicklungs-Server - nicht für Produktion geeignet")
+    print("• Bei Änderungen: Server automatischer Neustart (Hot Reload)")
+    print("• Für Produktion: Gunicorn oder Docker verwenden")
+    print("• API-Keys werden aus .env Datei geladen")
+    print("=" * 60)
+    
+    try:
+        # Starte Flask-Entwicklungsserver
+        app.run(
+            debug=True,           # Debug-Modus für Entwickler-Features
+            host='0.0.0.0',       # Erlaube Zugriff von allen Netzwerk-Interfaces
+            port=5000,            # Standard HTTP-Port für Entwicklung
+            threaded=True         # Bessere Performance für gleichzeitige Anfragen
+        )
+    except KeyboardInterrupt:
+        print("\n\n👋 WriteWise wurde ordnungsgemäß beendet.")
+        print("Danke für die Nutzung!")
+    except Exception as e:
+        print(f"\n❌ FEHLER BEIM STARTEN: {str(e)}")
+        print("Überprüfe:")
+        print("1. Ist Port 5000 bereits belegt?")
+        print("2. Sind alle Abhängigkeiten installiert?")
+        print("3. Enthält .env die korrekten API-Keys?")

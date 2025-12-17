@@ -1,0 +1,37 @@
+{
+  "id": "20251204_195038",
+  "timestamp": "2025-12-04T19:50:38.188634",
+  "text_preview": "Die Bedeutung der Digitalisierung in der modernen Gesellschaft\r\n\r\nDie Digitalisierung zählt zu den zentralen Entwicklungen des 21. Jahrhunderts und beeinflusst nahezu alle Lebensbereiche. Sie beschrei",
+  "text_length": 200,
+  "file_used": false,
+  "feedback": {
+    "language_feedback": [
+      "Die Wortwahl ist größtenteils passend, jedoch gibt es wiederholte Formulierungen (z. B. „Digitalisierung“ am Satzanfang), die den Lesefluss hemmen.",
+      "Einige Sätze sind sehr lang und verschachtelt; das Aufteilen in kürzere Sätze erhöht die Verständlichkeit (z. B. der Satz im Abschnitt „Digitalisierung in der Politik und Verwaltung\").",
+      "Achten Sie auf einheitliche Kommasetzung bei Aufzählungen (z. B. \"höhere Effizienz in Unternehmen, neue Arbeitsmodelle wie Homeoffice, innovativere Lernmethoden …\").",
+      "Der Einsatz von Fachbegriffen (z. B. „E‑Government“, „digitale Kompetenzen\") ist korrekt, jedoch fehlt teilweise eine kurze Erklärung für Leser*innen ohne Vorkenntnisse.",
+      "Stilistisch wäre ein stärkeres Wechselspiel zwischen aktiver und passiver Stimme wünschenswert, um die Argumentation direkter zu präsentieren."
+    ],
+    "structure_feedback": [
+      "Der Text verfügt über eine klare Gliederung mit Einleitung, thematischen Kapiteln und einem Fazit, was die Orientierung erleichtert.",
+      "Die Einleitung nennt zwar das Thema, lässt aber keine klare These oder Fragestellung zurück, die im weiteren Verlauf beantwortet wird.",
+      "Zwischen den einzelnen Abschnitten fehlt teilweise ein überleitender Satz, der die Verbindung zum vorherigen Kapitel herstellt.",
+      "Das Fazit fasst die Inhalte gut zusammen, könnte jedoch konkretere Handlungsempfehlungen oder einen Ausblick enthalten.",
+      "Eine nummerierte oder klarere Überschriftenhierarchie (z. B. 1. Wirtschaft, 1.1. Geschäftsmodelle) würde die Struktur noch transparenter machen."
+    ],
+    "argumentation_feedback": [
+      "Die Argumente sind nachvollziehbar und decken die wichtigsten Gesellschaftsbereiche ab, jedoch bleiben viele Behauptungen untermauert (z. B. \"die Corona‑Pandemie hat deutlich gemacht, dass Deutschland großen Nachholbedarf hat\").",
+      "Statistische Daten, Studien oder Literaturhinweise würden die Aussagekraft erhöhen und die Argumentation stärker fundieren.",
+      "Gegenüberstellungen von Chancen und Risiken sind vorhanden, aber die kritische Analyse fehlt teilweise – z. B. werden mögliche Gegenstrategien zu Datenschutzproblemen nicht diskutiert.",
+      "Einige Punkte wiederholen sich (z. B. die Bedeutung von Daten als Rohstoff), wodurch die Argumentationskraft verwässert wird; hier könnte eine stärkere Fokussierung helfen.",
+      "Die Schlussfolgerung sollte klar aus den vorhergehenden Argumenten abgeleitet werden; ein kurzes „Warum“ nach jedem Hauptabschnitt würde die Logik verdeutlichen."
+    ],
+    "overall_summary": "Der Text bietet einen guten Überblick über die vielfältigen Auswirkungen der Digitalisierung und ist strukturell gut gegliedert. Die Sprache ist größtenteils verständlich, könnte jedoch durch prägnantere Formulierungen und klarere Übergänge verbessert werden. Die Argumentationsbasis ist solide, braucht jedoch mehr Evidenz und kritische Tiefe, insbesondere durch konkrete Beispiele, Daten und Literatur. Mit einer klareren Leitthese, verstärkten Quellenangaben und einer optimierten Struktur (z. B. stärker ausgearbeitete Übergänge und konkrete Handlungsempfehlungen im Fazit) lässt sich das Werk zu einer überzeugenderen und akademisch fundierteren Hausarbeit weiterentwickeln."
+  },
+  "analysis_categories": [
+    "language_feedback",
+    "structure_feedback",
+    "argumentation_feedback",
+    "overall_summary"
+  ]
+}

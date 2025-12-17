@@ -1,0 +1,37 @@
+{
+  "id": "20251204_183045",
+  "timestamp": "2025-12-04T18:30:45.567031",
+  "text_preview": "Die Bedeutung der Digitalisierung in der modernen Gesellschaft\r\n\r\nDie Digitalisierung zählt zu den prägendsten Entwicklungen der Gegenwart und beeinflusst nahezu alle Lebensbereiche. Sie beschreibt de",
+  "text_length": 200,
+  "file_used": false,
+  "feedback": {
+    "language_feedback": [
+      "Der Text ist insgesamt gut lesbar, enthält jedoch einige lange, verschachtelte Sätze, die das Verständnis erschweren (z. B. im ersten Absatz). Kürzere Sätze erhöhen die Klarheit.",
+      "Einige Wiederholungen („digitale“, „Digitalisierung“) könnten durch Synonyme oder Umformulierungen reduziert werden.",
+      "Achten Sie auf die einheitliche Groß‑ und Kleinschreibung von Fachbegriffen (z. B. „E‑Government“ statt „E‑Governement‑Dienste\").",
+      "Der Wechsel zwischen Singular und Plural ist an manchen Stellen inkonsistent (z. B. „Unternehmen nutzen… das Unternehmen…“). Einheitliche Subjekt‑Verb‑Kongruenz verbessern.",
+      "Einige Kommasetzung ist nicht optimal, beispielsweise vor Konjunktionen wie „und“ in Aufzählungen kann entfallen."
+    ],
+    "structure_feedback": [
+      "Der Aufsatz besitzt eine klare Einleitung, mehrere thematische Hauptabschnitte und einen zusammenfassenden Schluss – die Grundstruktur ist vorhanden.",
+      "Die Übergänge zwischen den Abschnitten könnten flüssiger sein; ein kurzer Überleitungssatz am Ende jedes Absatzes würde den logischen Zusammenhang stärken.",
+      "Eine Gliederung mit Zwischenüberschriften (z. B. „Digitalisierung in der Wirtschaft“, „Digitalisierung im Bildungswesen“ usw.) würde die Orientierung für den Leser deutlich verbessern.",
+      "Die Einleitung nennt das Thema, liefert jedoch noch kein konkretes Leitmotiv oder eine Fragestellung, die im Folgenden beantwortet wird. Ein klar formulierter These‑Satz wäre hilfreich.",
+      "Im Schluss wird die These wieder aufgegriffen, jedoch fehlt ein Ausblick oder ein konkreter Handlungsempfehlung, die den Abschluss stärker abrundet."
+    ],
+    "argumentation_feedback": [
+      "Die Argumente sind nachvollziehbar und gut strukturiert, jedoch werden sie größtenteils ohne konkrete Quellen oder empirische Daten präsentiert. Zitieren von Studien oder Statistiken würde die Aussagekraft erhöhen.",
+      "Einige Punkte bleiben zu allgemein, etwa die Aussage, dass „digitale Plattformen traditionelle Geschäftsmodelle herausgefordert haben“. Konkrete Beispiele (z. B. Etsy vs. stationäre Einzelhändler) würden die Argumentation anschaulicher machen.",
+      "Gegenseitige Wechselwirkungen zwischen den Themenbereichen (Wirtschaft, Bildung, Gesellschaft, Politik) werden nur am Rande erwähnt. Eine stärkere Verknüpfung, etwa wie digitale Kompetenzen im Bildungswesen die Wettbewerbsfähigkeit von Unternehmen beeinflussen, würde die Argumentationslogik vertiefen.",
+      "Risiken und Herausforderungen werden genannt, jedoch nicht systematisch analysiert. Eine Gegenüberstellung von Chancen vs. Risiken in einer Tabelle oder einem kurzen Fazit pro Abschnitt könnte die kritische Reflexion stärken.",
+      "Der Text endet mit einer eher allgemeinen Schlussfolgerung. Eine präzisere, argumentativ begründete Empfehlung (z. B. konkrete Förderprogramme für digitale Infrastruktur) würde die Argumentationskraft abschließen."
+    ],
+    "overall_summary": "Der Aufsatz behandelt ein hochaktuelles Thema umfassend und zeigt ein gutes Grundverständnis der Digitalisierung und ihrer gesellschaftlichen Auswirkungen. Die Struktur ist vorhanden, jedoch könnten klare Überschriften, stärkere Übergänge und ein präziserer Einstieg die Lesbarkeit erhöhen. Argumentativ wäre mehr Evidenz und tiefere Verknüpfung der einzelnen Teilbereiche wünschenswert. Sprachlich sind Stil und Grammatik solide, profitieren jedoch von kürzeren Sätzen und weniger Wiederholungen. Mit gezielten Verbesserungen in Struktur, Evidenz und Formulierung kann die Arbeit deutlich an akademischer Qualität gewinnen."
+  },
+  "analysis_categories": [
+    "language_feedback",
+    "structure_feedback",
+    "argumentation_feedback",
+    "overall_summary"
+  ]
+}

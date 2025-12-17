@@ -1,0 +1,37 @@
+{
+  "id": "20251204_182728",
+  "timestamp": "2025-12-04T18:27:28.542408",
+  "text_preview": "ie Bedeutung der Digitalisierung in der modernen Gesellschaft\r\n\r\nDie Digitalisierung prägt heute nahezu alle Bereiche des gesellschaftlichen Lebens. Sie beschreibt den Prozess, bei dem analoge Informa",
+  "text_length": 200,
+  "file_used": false,
+  "feedback": {
+    "language_feedback": [
+      "Achten Sie auf einheitliche Groß- und Kleinschreibung (z. B. \"Digitalisierung\" konsequent großschreiben).",
+      "Einige Sätze sind sehr lang und enthalten mehrere Hauptaussagen; kürzere Sätze erhöhen die Lesbarkeit.",
+      "Vermeiden Sie Wortwiederholungen, z. B. das häufige Auftreten von \"Digitalisierung\" am Satzanfang; nutzen Sie Synonyme oder Pronomen.",
+      "Stellen Sie sicher, dass Fachbegriffe wie \"E‑Commerce\" und \"digitale Plattformen\" bei Erstnennung kurz erläutert werden.",
+      "Die Verwendung von Bindestrichen bei zusammengesetzten Begriffen (z. B. \"ortsunabhängig\") ist korrekt, achten Sie jedoch auf konsistente Schreibweise."
+    ],
+    "structure_feedback": [
+      "Die Arbeit beginnt mit einem Titel, es fehlt jedoch eine klar formulierte Einleitung, die das Thema einführt und eine zentrale Fragestellung bzw. These präsentiert.",
+      "Der Hauptteil ist thematisch in Wirtschaft, Bildung und Soziales gegliedert, jedoch ohne Zwischentitel; Überschriften würden die Struktur verdeutlichen.",
+      "Ein abschließendes Fazit gibt zwar ein Resümee, sollte jedoch die eingangs formulierte These wiederaufgreifen und die wichtigsten Argumente kompakt zusammenfassen.",
+      "Die Arbeit enthält keine Literaturangaben oder Quellenverzeichnis; ein Literaturverzeichnis am Ende ist für akademische Arbeiten unerlässlich.",
+      "Ein Übergang zwischen den Abschnitten (z. B. überleitende Satzverbindungen) fehlt teilweise, wodurch der Text etwas sprunghaft wirkt."
+    ],
+    "argumentation_feedback": [
+      "Die Aussagen zu den Chancen der Digitalisierung sind allgemein gehalten; konkretisieren Sie mit Beispielen (z. B. ein konkretes E‑Commerce-Unternehmen oder ein konkretes Lernmanagementsystem).",
+      "Kritische Aspekte wie Datenschutz und Fehlinformation werden nur angerissen; vertiefen Sie die Argumentation, indem Sie Ursachen und mögliche Gegenmaßnahmen diskutieren.",
+      "Die Arbeit behauptet, dass Unternehmen \"Kosten senken\" durch Digitalisierung, aber es fehlt ein Hinweis auf empirische Befunde oder Studien, die diese These stützen.",
+      "Im Bildungsbereich wird die Notwendigkeit der Weiterbildung von Lehrkräften erwähnt, jedoch ohne zu erläutern, welche Formen der Fortbildung sinnvoll sind.",
+      "Die Schlussfolgerung bleibt relativ allgemein; verbinden Sie die einzelnen Argumentationsstränge stärker, um zu zeigen, wie Chancen und Risiken miteinander verknüpft sind."
+    ],
+    "overall_summary": "Der Text liefert einen guten Überblick über die Bedeutung der Digitalisierung in Wirtschaft, Bildung und Gesellschaft, benötigt jedoch eine klarere Einleitung, strukturelle Gliederungen mit Überschriften sowie tiefere, evidenzbasierte Argumente. Durch sprachliche Präzisierung, gezielte Beispiele und ein stärkeres Fazit lässt sich die Arbeit erheblich verbessern."
+  },
+  "analysis_categories": [
+    "language_feedback",
+    "structure_feedback",
+    "argumentation_feedback",
+    "overall_summary"
+  ]
+}

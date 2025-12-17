@@ -6,28 +6,66 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from typing import List, Optional  
 
+# Lädt Umgebungsvariablen aus einer .env Datei
 load_dotenv()
 
 class FeedbackResponse(BaseModel):
+    """
+    Pydantic-Modell für strukturiertes Feedback zu einer Hausarbeit.
+    
+    Attributes:
+        language_feedback (List[str]): Feedback zur Sprache, Grammatik und Ausdruck
+        structure_feedback (List[str]): Feedback zur Struktur und Gliederung
+        argumentation_feedback (List[str]): Feedback zur Argumentation und Logik
+        overall_summary (Optional[str]): Zusammenfassende Bewertung der Arbeit
+    """
     language_feedback: List[str]
     structure_feedback: List[str]
     argumentation_feedback: List[str]
     overall_summary: Optional[str] = None
 
-
+# Stellt sicher, dass das Modell korrekt initialisiert wird
 FeedbackResponse.model_rebuild()
 
 def analyze_hausarbeit(text: str) -> dict:
-    """Analysiert Hausarbeit und gibt strukturiertes Feedback zurück"""
+    """
+    Analysiert eine Hausarbeit mittels KI und gibt strukturiertes Feedback zurück.
     
+    Diese Funktion verwendet ein LLM (Large Language Model), um eine Hausarbeit
+    in den Bereichen Sprache, Struktur und Argumentation zu bewerten und
+    konstruktives Feedback zu generieren.
+    
+    Args:
+        text (str): Der Text der zu analysierenden Hausarbeit
+        
+    Returns:
+        dict: Ein Dictionary mit Feedback in folgenden Kategorien:
+            - language_feedback: Liste mit sprachlichen Hinweisen
+            - structure_feedback: Liste mit strukturellen Verbesserungsvorschlägen
+            - argumentation_feedback: Liste mit Feedback zur Argumentation
+            - overall_summary: Zusammenfassende Bewertung oder None
+        
+    Raises:
+        Exception: Falls die KI-Analyse fehlschlägt, wird ein Fehler geloggt
+                  und ein Fallback-Feedback zurückgegeben
+        
+    Example:
+        >>> result = analyze_hausarbeit("Hier steht der Text der Hausarbeit...")
+        >>> print(result['language_feedback'])
+        ['Verbesserungsvorschlag 1', 'Verbesserungsvorschlag 2']
+    """
+    
+    # Initialisiert das ChatOpenAI-Modell mit Konfiguration aus Umgebungsvariablen
     llm = ChatOpenAI(
         model="chat-default",  
         base_url=os.getenv("OPENAI_BASE_URL"),
         api_key=os.getenv("OPENAI_API_KEY")
     )
     
+    # Erstellt einen Parser für die strukturierte Ausgabe im FeedbackResponse-Format
     parser = PydanticOutputParser(pydantic_object=FeedbackResponse)
 
+    # Erstellt das Prompt-Template für die KI-Analyse
     prompt = ChatPromptTemplate.from_messages(
         [
             (
@@ -55,12 +93,14 @@ Systemanforderungen:
         ]
     ).partial(format_instructions=parser.get_format_instructions())
 
+    # Verkettet die Komponenten zu einer Pipeline: Prompt → LLM → Parser
     chain = prompt | llm | parser
 
     try:
+        # Führt die Analyse mit dem bereitgestellten Text durch
         response = chain.invoke({"query": text})
         
-        # Konvertiert Pydantic-Modell zu Dictionary für Flask
+        # Wandelt das Pydantic-Modell in ein Dictionary um
         return {
             'language_feedback': response.language_feedback,
             'structure_feedback': response.structure_feedback,
@@ -69,8 +109,9 @@ Systemanforderungen:
         }
         
     except Exception as e:
+        # Fehlerbehandlung bei Problemen mit der KI-Analyse
         print(f"❌ Fehler bei KI-Analyse: {e}")
-        # Fallback-Feedback
+        # Fallback-Feedback bei Fehlern
         return {
             'language_feedback': [f'Analyse fehlgeschlagen: {str(e)}'],
             'structure_feedback': [],
@@ -80,6 +121,12 @@ Systemanforderungen:
 
 # Test-Code nur wenn direkt ausgeführt
 if __name__ == "__main__":
+    """
+    Testfunktion für die Hausarbeitsanalyse.
+    
+    Wird nur ausgeführt, wenn die Datei direkt gestartet wird,
+    nicht wenn sie als Modul importiert wird.
+    """
     test_text = """
     In dieser Hausarbeit werde ich die Auswirkungen des Klimawandels auf die Landwirtschaft in Deutschland untersuchen. 
     Der Klimawandel ist ein wichtiges Thema und betrifft uns alle. Die Landwirtschaft muss sich anpassen 

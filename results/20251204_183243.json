@@ -1,0 +1,34 @@
+{
+  "id": "20251204_183243",
+  "timestamp": "2025-12-04T18:32:43.116766",
+  "text_preview": "Die Bedeutung der Digitalisierung in der modernen Gesellschaft\r\n\r\nDie Digitalisierung zählt zu den zentralen Entwicklungen des 21. Jahrhunderts und beeinflusst nahezu alle Lebensbereiche. Sie beschrei",
+  "text_length": 200,
+  "file_used": false,
+  "feedback": {
+    "language_feedback": [
+      "Der Text enthält einige sehr lange Sätze, die das Verständnis erschweren (z. B. der erste Abschnitt). Kürzere Sätze oder das Aufteilen in mehrere Teilsätze würde die Lesbarkeit erhöhen.",
+      "Einige Wiederholungen (z. B. \"Digitalisierung verändert...\" in mehreren Abschnitten) können reduziert werden, um stilistische Redundanz zu vermeiden.",
+      "Achten Sie auf die einheitliche Verwendung von Fachbegriffen (z. B. \"digitale Kompetenzen\" vs. \"digitale Fähigkeiten\").",
+      "Der Text enthält vereinzelte Grammatikfehler, z. B. das fehlende Komma vor Nebensätzen („..., das die Gesellschaft den Wandel bewusst und aktiv gestaltet, kann die Digitalisierung langfristig zu Fortschritt, Innovation und gesellschaftlichem Wohlstand beitragen.“)."
+    ],
+    "structure_feedback": [
+      "Die Arbeit besitzt eine klare Gliederung in thematische Abschnitte, jedoch fehlt ein prägnanter Leitfaden im Einleitungsteil, der die zentrale Fragestellung bzw. These eindeutig formuliert.",
+      "Zwischen den einzelnen Kapiteln wären flüssigere Übergänge hilfreich, um den roten Faden zu stärken (z. B. ein kurzer Satz, der erklärt, wie der vorherige Abschnitt zur nächsten Thematik führt).",
+      "Das Fazit wiederholt bereits Gesagtes, ohne neue Synthese oder konkrete Handlungsempfehlungen zu geben. Ein stärkeres Abschlusspaket mit klaren Implikationen für Forschung oder Praxis wäre wünschenswert.",
+      "Ein Literaturverzeichnis bzw. Quellenangaben fehlen vollständig – für eine wissenschaftliche Hausarbeit sind diese unverzichtbar."
+    ],
+    "argumentation_feedback": [
+      "Die Argumente sind meist nachvollziehbar, aber sie beruhen überwiegend auf allgemeinen Aussagen. Konkrete Daten, Statistiken oder Studien (z. B. zum Beitrag der Digitalisierung zum BIP‑Wachstum) würden die Überzeugungskraft erhöhen.",
+      "Die Pro- und Contra‑Seiten sind genannt, jedoch fehlt eine tiefere kritische Analyse, warum bestimmte Risiken (z. B. digitale Spaltung) besonders problematisch sind und wie sie mit den Chancen abgewogen werden können.",
+      "Einige Abschnitte (z. B. \"Digitalisierung im Bildungsbereich\") präsentieren Vorteile, lassen jedoch die Frage offen, inwieweit aktuelle Initiativen bereits erfolgreich umgesetzt wurden. Beispiele aus Praxisprojekten könnten die Argumentation stärken.",
+      "Die These, dass \"Digitalisierung ein gesellschaftlicher Transformationsprozess\" ist, wird nicht konsequent durch den gesamten Text hindurch verfolgt. Eine klarere Verknüpfung zwischen den einzelnen Sektoren und der übergeordneten These würde die Logik verbessern."
+    ],
+    "overall_summary": "Der Aufsatz liefert einen guten Überblick über die vielfältigen Einflüsse der Digitalisierung auf Wirtschaft, Bildung, soziale Kommunikation und Verwaltung. Die Struktur ist grundsätzlich vorhanden, jedoch fehlen ein klar formulierter Einstieg, flüssige Übergänge und ein stärkeres Fazit. Die Argumentation ist nachvollziehbar, aber zu allgemein; sie benötigt empirische Untermauerung und eine tiefere kritische Gegenüberstellung von Chancen und Risiken. Stilistisch ist die Sprache größtenteils angemessen, leidet jedoch unter zu langen Sätzen und Wiederholungen. Mit gezielten Verbesserungen in These‑Formulierung, Evidenzbasis, sprachlicher Klarheit und formaler Wissenschaftlichkeit (Literaturangaben) kann die Hausarbeit deutlich an Qualität und Überzeugungskraft gewinnen."
+  },
+  "analysis_categories": [
+    "language_feedback",
+    "structure_feedback",
+    "argumentation_feedback",
+    "overall_summary"
+  ]
+}
