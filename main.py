@@ -1,3 +1,11 @@
+"""
+KI-Analysemodul für WriteWise - Hausarbeits-Feedback-System.
+
+Dieses Modul implementiert eine KI-gestützte Analyse von Hausarbeiten unter Verwendung
+von LangChain und OpenAI-kompatiblen LLMs. Es extrahiert strukturiertes Feedback
+zu Sprache, Struktur und Argumentation.
+"""
+
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
@@ -6,101 +14,248 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from typing import List, Optional  
 
-# Lädt Umgebungsvariablen aus einer .env Datei
+# ---------------------------
+# Umgebungsvariablen und Datenmodelle
+# ---------------------------
+
+"""
+Lädt Umgebungsvariablen aus einer .env-Datei.
+Erforderlich für API-Keys und Konfiguration.
+"""
 load_dotenv()
 
 class FeedbackResponse(BaseModel):
     """
-    Pydantic-Modell für strukturiertes Feedback zu einer Hausarbeit.
+    Pydantic-Modell für strukturiertes KI-Feedback.
+    
+    Dieses Modell definiert das strukturierte Ausgabeformat für die KI-Analyse,
+    bestehend aus drei Feedback-Kategorien und einer optionalen Zusammenfassung.
     
     Attributes:
-        language_feedback (List[str]): Feedback zur Sprache, Grammatik und Ausdruck
-        structure_feedback (List[str]): Feedback zur Struktur und Gliederung
-        argumentation_feedback (List[str]): Feedback zur Argumentation und Logik
-        overall_summary (Optional[str]): Zusammenfassende Bewertung der Arbeit
+        language_feedback (List[str]): 
+            Feedback zu Sprache, Grammatik, Stil und Ausdruck.
+            Jeder Eintrag sollte eine konkrete Textstelle referenzieren.
+            
+        structure_feedback (List[str]): 
+            Feedback zur Gliederung, Struktur und logischem Aufbau.
+            Beinhaltet Verbesserungsvorschläge für die Organisation.
+            
+        argumentation_feedback (List[str]): 
+            Feedback zur Argumentationslogik, Belegen und Schlüssigkeit.
+            
+        overall_summary (Optional[str]): 
+            Zusammenfassende Bewertung der gesamten Arbeit.
+            Optionales Feld für abschließende Einschätzung.
     """
     language_feedback: List[str]
     structure_feedback: List[str]
     argumentation_feedback: List[str]
     overall_summary: Optional[str] = None
 
-# Stellt sicher, dass das Modell korrekt initialisiert wird
+"""
+Stellt sicher, dass das Pydantic-Modell korrekt initialisiert wird.
+Diese Methode ist notwendig für korrekte Typvalidierung und Serialisierung.
+"""
 FeedbackResponse.model_rebuild()
+
+# ---------------------------
+# Hauptanalysefunktion
+# ---------------------------
 
 def analyze_hausarbeit(text: str) -> dict:
     """
-    Analysiert eine Hausarbeit mittels KI und gibt strukturiertes Feedback zurück.
+    Analysiert eine Hausarbeit mittels KI und generiert strukturiertes Feedback.
     
-    Diese Funktion verwendet ein LLM (Large Language Model), um eine Hausarbeit
-    in den Bereichen Sprache, Struktur und Argumentation zu bewerten und
-    konstruktives Feedback zu generieren.
+    Kernfunktion des Moduls, die ein Large Language Model (LLM) verwendet, um
+    akademische Texte in drei Kategorien zu bewerten. Die Funktion kombiniert
+    LangChain-Komponenten für Prompt-Engineering und strukturierte Ausgabe.
     
     Args:
-        text (str): Der Text der zu analysierenden Hausarbeit
-        
+        text (str): 
+            Der zu analysierende Text der Hausarbeit.
+            Sollte bereits bereinigt und vorstrukturiert sein (mit Kapitel/Seiten-Markierungen).
+            
     Returns:
-        dict: Ein Dictionary mit Feedback in folgenden Kategorien:
-            - language_feedback: Liste mit sprachlichen Hinweisen
-            - structure_feedback: Liste mit strukturellen Verbesserungsvorschlägen
-            - argumentation_feedback: Liste mit Feedback zur Argumentation
-            - overall_summary: Zusammenfassende Bewertung oder None
-        
+        dict: Strukturiertes Feedback-Dictionary mit folgenden Keys:
+            - 'language_feedback': List[str] - Sprachliche Verbesserungsvorschläge
+            - 'structure_feedback': List[str] - Strukturelle Hinweise
+            - 'argumentation_feedback': List[str] - Argumentations-Feedback
+            - 'overall_summary': Optional[str] - Gesamteinschätzung
+            
     Raises:
-        Exception: Falls die KI-Analyse fehlschlägt, wird ein Fehler geloggt
-                  und ein Fallback-Feedback zurückgegeben
+        Exception: 
+            Bei Fehlern in der KI-Verarbeitung wird ein Fehler geloggt
+            und Fallback-Feedback zurückgegeben.
+            
+    Workflow:
+        1. Initialisierung des LLM mit Konfiguration aus .env
+        2. Erstellung eines strukturierten Output-Parsers
+        3. Definition des Prompt-Templates mit System- und User-Prompts
+        4. Ausführung der Analyse-Kette (Prompt → LLM → Parser)
+        5. Umwandlung in Dictionary-Format
         
     Example:
-        >>> result = analyze_hausarbeit("Hier steht der Text der Hausarbeit...")
-        >>> print(result['language_feedback'])
-        ['Verbesserungsvorschlag 1', 'Verbesserungsvorschlag 2']
+        >>> feedback = analyze_hausarbeit("In dieser Arbeit untersuche ich...")
+        >>> print(feedback['structure_feedback'])
+        ['Die Einleitung könnte prägnanter formuliert werden...']
+        
+    Note:
+        - Verwendet OpenAI-kompatible APIs (via base_url Konfiguration)
+        - Berücksichtigt Extraktionsartefakte bei der Analyse
+        - Liefert konstruktives, motivierendes Feedback
     """
     
-    # Initialisiert das ChatOpenAI-Modell mit Konfiguration aus Umgebungsvariablen
+    # ---------------------------
+    # LLM Initialisierung
+    # ---------------------------
+    """
+    Initialisiert das ChatOpenAI-Modell mit benutzerdefinierter Konfiguration.
+    
+    Configuration:
+        model: "chat-default" - Standard-Chat-Modell
+        base_url: Aus OPENAI_BASE_URL Umgebungsvariable
+        api_key: Aus OPENAI_API_KEY Umgebungsvariable
+        
+    Note: Der base_url-Parameter ermöglicht die Nutzung von OpenAI-kompatiblen
+          APIs wie lokalen LLM-Servern oder alternativen Anbietern.
+    """
     llm = ChatOpenAI(
         model="chat-default",  
         base_url=os.getenv("OPENAI_BASE_URL"),
         api_key=os.getenv("OPENAI_API_KEY")
     )
     
-    # Erstellt einen Parser für die strukturierte Ausgabe im FeedbackResponse-Format
+    # ---------------------------
+    # Output-Parser Initialisierung
+    # ---------------------------
+    """
+    Erstellt einen Parser für strukturierte Ausgaben.
+    
+    Wandelt die LLM-Antwort in das definierte FeedbackResponse-Modell um.
+    Dies erzwingt eine konsistente Ausgabestruktur und ermöglicht Typvalidierung.
+    """
     parser = PydanticOutputParser(pydantic_object=FeedbackResponse)
 
-    # Erstellt das Prompt-Template für die KI-Analyse
+    # ---------------------------
+    # Prompt-Template Definition
+    # ---------------------------
+    """
+    Definiert das zweiteilige Prompt-Template für die KI-Analyse.
+    
+    Structure:
+        1. System-Prompt: Rolle, Aufgabenstellung, Regeln und Formatierungsanweisungen
+        2. Human-Prompt: Platzhalter für den tatsächlichen Hausarbeitstext
+    
+    System-Prompt enthält:
+        - Rollendefinition (akademischer Assistent)
+        - Analysebereiche (Struktur, Argumentation, Inhalt, Sprache)
+        - Wichtige Einschränkungen (Berücksichtigung von Extraktionsartefakten)
+        - Feedback-Stilrichtlinien (konstruktiv, sachlich, motivierend)
+        - Formatierungsanweisungen für strukturierte Ausgabe
+    
+    Human-Prompt:
+        {query}: Wird mit dem tatsächlichen Text der Hausarbeit gefüllt
+    """
     prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
                 """
-Du bist ein akademischer Assistent, der Hausarbeiten analysiert und konstruktives Feedback gibt. 
-Deine Aufgabe ist es, dem Benutzer die Arbeit zu verbessern, indem du Feedback in den folgenden Bereichen gibst:
+                Du bist ein akademischer Assistent, der schriftliche Hausarbeiten analysiert
+                und konstruktives, fachlich korrektes Feedback gibt.
 
-1. Struktur: Prüfe Einleitung, Hauptteil, Schluss und logischen Aufbau.
-2. Argumentation: Bewerte die Nachvollziehbarkeit, Klarheit und Logik der Argumente.
-3. Inhalt: Achte auf Relevanz, Richtigkeit und Tiefe.
-4. Sprache: Gib Hinweise zu Grammatik, Stil, Ausdruck und Verständlichkeit.
-5. Verbesserungsvorschläge: Formuliere konkrete, hilfreiche Tipps.
+                Ziel deiner Analyse ist es, Studierenden bei der inhaltlichen und sprachlichen
+                Verbesserung ihrer Arbeit zu helfen. Beurteile ausschließlich den vorliegenden Text.
 
-Systemanforderungen:
-- Texte können als Eingabe oder Datei kommen.
-- Prüfe Mindestlänge und Format.
-- Gib professionelles, motivierendes Feedback.
-- Antworte NUR bezogen auf den eingegebenen Text.
+                Analysiere die Arbeit in folgenden Bereichen:
 
-{format_instructions}
-""",
+                1. Struktur:
+                   - Aufbau von Einleitung, Hauptteil und Schluss
+                   - logische Gliederung und Nachvollziehbarkeit
+                   - roter Faden und Übergänge zwischen Abschnitten
+
+                2. Argumentation:
+                   - Klarheit und Schlüssigkeit der Argumente
+                   - Begründungen, Beispiele und Folgerungen
+                   - innere Logik und Konsistenz
+
+                3. Inhalt:
+                   - thematische Relevanz
+                   - inhaltliche Tiefe und Präzision
+                   - sachliche Angemessenheit (ohne Fakten zu erfinden oder zu überprüfen)
+
+                4. Sprache und Stil:
+                   - Verständlichkeit und Lesefluss
+                   - akademischer Stil und Ausdruck
+                   - Wortwahl und Satzstruktur
+
+                Wichtige Einschränkungen und Regeln:
+                - Der Text kann aus einer Datei (z. B. PDF oder DOCX) stammen und automatisch extrahiert worden sein.
+                - Kritisiere daher keine möglichen Fehler bei Leerzeichen, Worttrennungen, Interpunktion
+                  oder offensichtliche Formatierungsartefakte, wenn diese plausibel technisch bedingt sind.
+                - Gib keine Rechtschreib- oder Grammatikhinweise, die eindeutig auf Dateiextraktion
+                  oder automatische Textverarbeitung zurückzuführen sein könnten.
+                - Verweise bei Kritik oder Verbesserungsvorschlägen möglichst präzise auf Textstellen,
+                  z. B. durch Absatzinhalt, Satzanfang oder inhaltliche Beschreibung,
+                  jedoch nur, sofern dies anhand des gegebenen Textes zuverlässig möglich ist.
+                - Erfinde keine Seitenzahlen, Absätze oder Textstellen.
+
+                Feedback-Stil:
+                - Beginne jede Kategorie mit mindestens einem positiven Aspekt.
+                - Formuliere konstruktiv, sachlich und motivierend.
+                - Keine pauschalen Urteile, sondern konkrete, nachvollziehbare Hinweise.
+                - Antworte ausschließlich bezogen auf den eingegebenen Text.
+
+                Gib dein Feedback ausschließlich im vorgegebenen strukturierten Ausgabeformat aus.
+  
+                {format_instructions}
+                """,
             ),
             ("human", "{query}"),
         ]
     ).partial(format_instructions=parser.get_format_instructions())
 
-    # Verkettet die Komponenten zu einer Pipeline: Prompt → LLM → Parser
+    # ---------------------------
+    # Analyse-Kette aufbauen
+    # ---------------------------
+    """
+    Kombiniert die Komponenten zu einer verarbeitungskette.
+    
+    Chain Sequence:
+        1. Prompt: Nimmt Input, wendet Template an
+        2. LLM: Verarbeitet den formatierten Prompt
+        3. Parser: Wandelt LLM-Antwort in strukturiertes Modell um
+    
+    Pipeline: Input → Prompt Template → LLM → Parser → Strukturierte Ausgabe
+    """
     chain = prompt | llm | parser
 
     try:
-        # Führt die Analyse mit dem bereitgestellten Text durch
+        # ---------------------------
+        # Ausführung der Analyse
+        # ---------------------------
+        """
+        Führt die Analyse-Kette mit dem bereitgestellten Text aus.
+        
+        Process:
+            1. Verpackt den Text in ein Dictionary unter dem Key 'query'
+            2. Übergibt an die LangChain-Pipeline
+            3. Erhält strukturiertes FeedbackResponse-Objekt
+            
+        Error Handling:
+            Bei Fehlern wird eine Exception geworfen und im Fallback behandelt.
+        """
         response = chain.invoke({"query": text})
         
-        # Wandelt das Pydantic-Modell in ein Dictionary um
+        # ---------------------------
+        # Umwandlung und Rückgabe
+        # ---------------------------
+        """
+        Konvertiert das Pydantic-Modell in ein Python-Dictionary.
+        
+        Dies ermöglicht einfache JSON-Serialisierung und Kompatibilität
+        mit anderen Systemkomponenten (z.B. Flask-API).
+        """
         return {
             'language_feedback': response.language_feedback,
             'structure_feedback': response.structure_feedback,
@@ -109,9 +264,18 @@ Systemanforderungen:
         }
         
     except Exception as e:
-        # Fehlerbehandlung bei Problemen mit der KI-Analyse
+        """
+        Fehlerbehandlung bei gescheiterter KI-Analyse.
+        
+        Loggt den Fehler und gibt konsistentes Fallback-Feedback zurück,
+        um Systemstabilität zu gewährleisten.
+        
+        Fallback-Feedback:
+            - Enthält Fehlermeldung in language_feedback
+            - Leere Listen für andere Kategorien
+            - Klare Fehlerkennzeichnung in summary
+        """
         print(f"❌ Fehler bei KI-Analyse: {e}")
-        # Fallback-Feedback bei Fehlern
         return {
             'language_feedback': [f'Analyse fehlgeschlagen: {str(e)}'],
             'structure_feedback': [],
@@ -119,13 +283,22 @@ Systemanforderungen:
             'overall_summary': 'Fehler bei der Analyse'
         }
 
-# Test-Code nur wenn direkt ausgeführt
+# ---------------------------
+# Test- und Entwicklungsbereich
+# ---------------------------
+
 if __name__ == "__main__":
     """
-    Testfunktion für die Hausarbeitsanalyse.
+    Unittest und Entwicklungstest für die Analysefunktion.
     
-    Wird nur ausgeführt, wenn die Datei direkt gestartet wird,
-    nicht wenn sie als Modul importiert wird.
+    Wird nur ausgeführt, wenn das Modul direkt aufgerufen wird,
+    nicht bei Import als Modul. Dient zur Verifikation der Funktionalität
+    und als Beispiel für die Verwendung.
+    
+    Test-Case:
+        - Kurzer Beispieltext zum Klimawandel
+        - Vollständige Ausgabe aller Feedback-Kategorien
+        - Erfolgsmeldung bei funktionierender Analyse
     """
     test_text = """
     In dieser Hausarbeit werde ich die Auswirkungen des Klimawandels auf die Landwirtschaft in Deutschland untersuchen. 
