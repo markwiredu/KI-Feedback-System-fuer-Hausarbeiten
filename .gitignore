@@ -1,0 +1,28 @@
+# -----------------------
+# Python
+# -----------------------
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# -----------------------
+# Generated / Runtime Data
+# -----------------------
+uploads/*
+results/*
+exports/*
+
+# Ordnerstruktur behalten
+!uploads/.gitkeep
+!results/.gitkeep
+!exports/.gitkeep
+
+# -----------------------
+# IDE / OS
+# -----------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

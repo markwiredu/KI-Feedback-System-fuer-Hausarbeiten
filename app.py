@@ -355,8 +355,8 @@ if __name__ == '__main__':
         - Import-Status des KI-Moduls
     """
     print("=" * 60)
-    print(" 🚀 WRITEWISE - KI-FEEDBACK FÜR HAUSARBEITEN")
+    print("  WRITEWISE - KI-FEEDBACK FÜR HAUSARBEITEN")
     print("=" * 60)
     print(" STARTE ANWENDUNG...")
-    print(f"📡 Server: http://localhost:5000")
+    print(f" Server: http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
