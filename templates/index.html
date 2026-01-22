@@ -1,43 +1,66 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+    <!-- Zeichensatz: Umlaute/Deutsch korrekt anzeigen -->
     <meta charset="UTF-8">
+
+    <!-- Responsives Verhalten auf mobilen Geräten -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Titel im Browser-Tab -->
     <title>WriteWise - KI-Feedback für Hausarbeiten</title>
+
+    <!-- Einbindung der externen CSS-Datei über Flask (url_for) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
 </head>
+
 <body>
+    <!-- Hauptcontainer: zentriert und mit Card-Layout (siehe CSS) -->
     <div class="container">
+
+        <!-- Kopfbereich: Titel + Untertitel -->
         <div class="header">
             <h1> WriteWise</h1>
             <p>KI-Feedback für deine Hausarbeiten</p>
         </div>
-        
+
         <div class="content">
-            <!-- Eingabebereich -->
+            <!-- =========================
+                 EINGABEBEREICH (Text + Upload)
+                 ========================= -->
             <div class="input-section">
                 <h2>Lass uns deine Hausarbeit analysieren!</h2>
+
+                <!-- Formular: wird per JS abgefangen (kein klassisches Submit/Reload) -->
                 <form id="analysisForm">
+                    <!-- Textarea für direkte Texteingabe -->
                     <textarea 
                         id="textInput" 
                         placeholder="Füge deine Hausarbeit hier ein... (Mindestens 50 Zeichen)"
                     ></textarea>
 
-                    <!-- Datei-Upload Bereich -->
+                    <!-- Datei-Upload Bereich (Alternative zur Texteingabe) -->
                     <div class="file-upload-section">
                         <h3>📎 Oder Datei hochladen</h3>
+
+                        <!-- file input: akzeptiert nur bestimmte Formate -->
                         <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.doc">
+
+                        <!-- Hinweistext für Nutzer -->
                         <small>Unterstützte Formate: TXT, PDF, DOCX (max. 100MB)</small>
+
+                        <!-- Datei-Info Box: wird sichtbar, wenn Datei gewählt wurde -->
                         <div id="fileInfo" class="file-info" style="display: none;">
                             📄 <span id="fileName"></span> - <span id="fileSize"></span>
                         </div>
                     </div>
-                    
+
+                    <!-- Zeichenanzahl-Anzeige (live aktualisiert) -->
                     <div class="char-count">
                         <span id="charCount">0</span> Zeichen
                     </div>
-                    
+
+                    <!-- Submit-Button -->
                     <div style="margin-top: 20px; text-align: center;">
                         <button type="submit" class="btn" id="analyzeBtn">
                              Feedback generieren
@@ -45,47 +68,58 @@
                     </div>
                 </form>
             </div>
-            
-            <!-- Ladeanimation -->
+
+            <!-- =========================
+                 LADEANIMATION (während Analyse)
+                 ========================= -->
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p>Analysiere deine Hausarbeit...</p>
             </div>
-            
-            <!-- Fehlermeldung -->
+
+            <!-- Fehlerbereich: wird per JS ein-/ausgeblendet -->
             <div class="error" id="error"></div>
-            
-            <!-- Ergebnisse -->
+
+            <!-- =========================
+                 ERGEBNISSE (Feedback-Ausgabe)
+                 ========================= -->
             <div class="results" id="results">
                 <h2>Feedback-Ergebnisse</h2>
-                
+
+                <!-- Sprachliches Feedback -->
                 <div class="feedback-category">
                     <h3>Sprachliches Feedback</h3>
                     <div id="languageFeedback"></div>
                 </div>
-                
+
+                <!-- Strukturfeedback -->
                 <div class="feedback-category">
                     <h3>Struktur und Aufbau</h3>
                     <div id="structureFeedback"></div>
                 </div>
-                
+
+                <!-- Argumentation -->
                 <div class="feedback-category">
                     <h3>Argumentation</h3>
                     <div id="argumentationFeedback"></div>
                 </div>
-                
+
+                <!-- Zusammenfassung -->
                 <div class="feedback-category">
                     <h3>Zusammenfassung</h3>
                     <div id="overallSummary"></div>
                 </div>
 
-                <!-- Export Bereich -->
+                <!-- Export Bereich (TXT/PDF) -->
                 <div class="export-section">
-             <h3>📥 Feedback exportieren</h3>
-         <button class="btn export-btn" data-format="txt">📝 Als TXT</button>
-               <button class="btn export-btn" data-format="pdf">📄 Als PDF</button>
-             </div>
-                
+                    <h3>Feedback exportieren</h3>
+
+                    <!-- Export Buttons: Format steht in data-format -->
+                    <button class="btn export-btn" data-format="txt">📝 Als TXT</button>
+                    <button class="btn export-btn" data-format="pdf">📄 Als PDF</button>
+                </div>
+
+                <!-- Reset für neue Analyse -->
                 <div style="text-align: center; margin-top: 20px;">
                     <button class="btn" id="newAnalysisBtn">
                         🔄 Neue Analyse starten
@@ -95,185 +129,255 @@
         </div>
     </div>
 
-<script>
-    // Zeichenzähler
-    document.getElementById('textInput').addEventListener('input', function() {
-        const count = this.value.length;
-        document.getElementById('charCount').textContent = count;
-    });
-    
-    // Datei-Upload Handling
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        const fileInfo = document.getElementById('fileInfo');
-        
-        if (file) {
-            document.getElementById('fileName').textContent = file.name;
-            document.getElementById('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-            fileInfo.style.display = 'block';
-            
-            // Textarea leeren wenn Datei ausgewählt
-            document.getElementById('textInput').value = '';
-            document.getElementById('charCount').textContent = '0';
-        } else {
-            fileInfo.style.display = 'none';
-        }
-    });
-    
-    // Formular abschicken (ANGEPASST für Datei-Upload)
-    document.getElementById('analysisForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData();
-        const textInput = document.getElementById('textInput').value.trim();
-        const fileInput = document.getElementById('fileInput').files[0];
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        
-        // Prüfen ob Text oder Datei vorhanden
-        if (fileInput) {
-            formData.append('file', fileInput);
-        } else if (textInput) {
-            formData.append('text', textInput);
-        } else {
-            showError('Bitte Text eingeben oder Datei hochladen');
-            return;
-        }
-        
-        // UI zurücksetzen
-        hideError();
-        hideResults();
-        showLoading(true);
-        analyzeBtn.disabled = true;
-        
-        try {
-            const response = await fetch('/analyze', {
-                method: 'POST',
-                body: formData  // WICHTIG: Kein Content-Type Header bei FormData!
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                displayFeedback(data);  
-                showResults();
-            } else {
-                showError(data.error);
-            }
-            
-        } catch (error) {
-            showError('Netzwerkfehler: ' + error.message);
-        } finally {
-            showLoading(false);
-            analyzeBtn.disabled = false;
-        }
-    });
-    
-    // Feedback anzeigen (ERWEITERT für Export)
-    function displayFeedback(data) {
-        const feedback = data.feedback;
-        const kiVerwendet = data.ki_verwendet;
-        
-        // Sprachliches Feedback
-        document.getElementById('languageFeedback').innerHTML = 
-            feedback.language_feedback.map(item => 
-                `<div class="feedback-item">• ${item}</div>`
-            ).join('');
-        
-        // Struktur-Feedback
-        document.getElementById('structureFeedback').innerHTML = 
-            feedback.structure_feedback.map(item => 
-                `<div class="feedback-item">• ${item}</div>`
-            ).join('');
-        
-        // Argumentation
-        document.getElementById('argumentationFeedback').innerHTML = 
-            feedback.argumentation_feedback.map(item => 
-                `<div class="feedback-item">• ${item}</div>`
-            ).join('');
-        
-        // Zusammenfassung
-        document.getElementById('overallSummary').textContent = 
-            feedback.overall_summary;
-        
-        // KI-Status hinzufügen
-        const kiStatus = document.createElement('div');
-        kiStatus.className = kiVerwendet ? 'success' : 'error';
-        kiStatus.style.marginBottom = '20px';
-        kiStatus.style.padding = '10px';
-        kiStatus.style.borderRadius = '5px';
-        kiStatus.textContent = kiVerwendet 
-            ? '✅ Analyse mit KI durchgeführt' 
-            : '⚠️ Mock-Daten (KI in Entwicklung)';
-        document.getElementById('results').prepend(kiStatus);
-        
-        // Datei-Info anzeigen falls verwendet
-        if (data.file_used) {
-            const fileInfo = document.createElement('div');
-            fileInfo.className = 'success';
-            fileInfo.style.marginBottom = '10px';
-            fileInfo.textContent = '✅ Analyse aus hochgeladener Datei';
-            document.getElementById('results').prepend(fileInfo);
-        }
-        
-        // Export-Buttons aktivieren
-        document.querySelectorAll('.export-btn').forEach(btn => {
-            btn.dataset.resultid = data.result_id;
+    <script>
+        /* =========================================================
+           FRONTEND-LOGIK (JavaScript)
+           - Zählt Zeichen
+           - Handhabt Datei-Upload
+           - Sendet Analyse-Request an /analyze
+           - Rendert Feedback + Export-Buttons
+           - UI-Reset für neue Analyse
+           ========================================================= */
+
+        // -------------------------
+        // Zeichenzähler (live)
+        // -------------------------
+        document.getElementById('textInput').addEventListener('input', function() {
+            // Länge des Textes ermitteln
+            const count = this.value.length;
+
+            // Zahl im UI aktualisieren
+            document.getElementById('charCount').textContent = count;
         });
-    }
-    
-    // Export-Funktionalität
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('export-btn')) {
-            const format = e.target.dataset.format;
-            const resultId = e.target.dataset.resultid;
-            
-            if (!resultId) {
-                showError('Kein Ergebnis zum Exportieren verfügbar');
+
+        // -------------------------
+        // Datei-Upload Handling
+        // -------------------------
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            // Erste ausgewählte Datei (falls vorhanden)
+            const file = e.target.files[0];
+
+            // Container für Datei-Infos
+            const fileInfo = document.getElementById('fileInfo');
+
+            if (file) {
+                // Dateiname anzeigen
+                document.getElementById('fileName').textContent = file.name;
+
+                // Dateigröße in MB anzeigen (auf 2 Nachkommastellen)
+                document.getElementById('fileSize').textContent =
+                    (file.size / 1024 / 1024).toFixed(2) + ' MB';
+
+                // Info-Box sichtbar machen
+                fileInfo.style.display = 'block';
+
+                // UX-Entscheidung:
+                // Wenn Datei gewählt wird, wird die Textarea geleert,
+                // damit nicht aus Versehen beides abgeschickt wird.
+                document.getElementById('textInput').value = '';
+                document.getElementById('charCount').textContent = '0';
+            } else {
+                // Wenn keine Datei mehr ausgewählt ist -> Info-Box ausblenden
+                fileInfo.style.display = 'none';
+            }
+        });
+
+        // -------------------------
+        // Formular abschicken (Analyse starten)
+        // -------------------------
+        document.getElementById('analysisForm').addEventListener('submit', async function(e) {
+            // Standard-Submit verhindern (kein Page-Reload)
+            e.preventDefault();
+
+            // FormData für Text oder Datei
+            const formData = new FormData();
+
+            // Eingaben aus UI lesen
+            const textInput = document.getElementById('textInput').value.trim();
+            const fileInput = document.getElementById('fileInput').files[0];
+            const analyzeBtn = document.getElementById('analyzeBtn');
+
+            // Prüfen ob Text oder Datei vorhanden
+            if (fileInput) {
+                // Datei an FormData anhängen
+                formData.append('file', fileInput);
+            } else if (textInput) {
+                // Text an FormData anhängen
+                formData.append('text', textInput);
+            } else {
+                // Nichts eingegeben -> Fehlermeldung
+                showError('Bitte Text eingeben oder Datei hochladen');
                 return;
             }
-            
-            exportFeedback(resultId, format);
+
+            // UI zurücksetzen: Fehler/Ergebnisse ausblenden, Ladeanzeige an
+            hideError();
+            hideResults();
+            showLoading(true);
+
+            // Button sperren, damit nicht mehrfach geklickt wird
+            analyzeBtn.disabled = true;
+
+            try {
+                // Request an Flask Backend senden
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // JSON-Antwort auslesen
+                const data = await response.json();
+
+                if (data.success) {
+                    // Feedback in die UI rendern
+                    displayFeedback(data);
+
+                    // Ergebnisbereich anzeigen
+                    showResults();
+                } else {
+                    // Backend meldet Fehler (Validierung etc.)
+                    showError(data.error);
+                }
+
+            } catch (error) {
+                // Netzwerk-/Fetch-Fehler
+                showError('Netzwerkfehler: ' + error.message);
+            } finally {
+                // Ladeanzeige aus, Button wieder aktiv
+                showLoading(false);
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        // -------------------------
+        // Feedback anzeigen (DOM-Manipulation)
+        // -------------------------
+        function displayFeedback(data) {
+            const feedback = data.feedback;
+            const kiVerwendet = data.ki_verwendet;
+
+            // Sprachliches Feedback: Liste -> HTML-Divs
+            document.getElementById('languageFeedback').innerHTML =
+                feedback.language_feedback.map(item =>
+                    `<div class="feedback-item">• ${item}</div>`
+                ).join('');
+
+            // Struktur-Feedback
+            document.getElementById('structureFeedback').innerHTML =
+                feedback.structure_feedback.map(item =>
+                    `<div class="feedback-item">• ${item}</div>`
+                ).join('');
+
+            // Argumentation
+            document.getElementById('argumentationFeedback').innerHTML =
+                feedback.argumentation_feedback.map(item =>
+                    `<div class="feedback-item">• ${item}</div>`
+                ).join('');
+
+            // Zusammenfassung als Text (kein HTML nötig)
+            document.getElementById('overallSummary').textContent =
+                feedback.overall_summary;
+
+            // KI-Status hinzufügen (oben im Ergebnisbereich)
+            const kiStatus = document.createElement('div');
+            kiStatus.className = kiVerwendet ? 'success' : 'error';
+            kiStatus.style.marginBottom = '20px';
+            kiStatus.style.padding = '10px';
+            kiStatus.style.borderRadius = '5px';
+            kiStatus.textContent = kiVerwendet
+                ? '✅ Analyse mit KI durchgeführt'
+                : '⚠️ Mock-Daten (KI in Entwicklung)';
+
+            // Hinweis: prepend platziert das Element ganz oben im results-Container
+            document.getElementById('results').prepend(kiStatus);
+
+            // Datei-Info anzeigen falls verwendet
+            if (data.file_used) {
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'success';
+                fileInfo.style.marginBottom = '10px';
+                fileInfo.textContent = '✅ Analyse aus hochgeladener Datei';
+                document.getElementById('results').prepend(fileInfo);
+            }
+
+            // Export-Buttons aktivieren:
+            // result_id wird als data-resultid in jeden Export-Button geschrieben
+            document.querySelectorAll('.export-btn').forEach(btn => {
+                btn.dataset.resultid = data.result_id;
+            });
         }
-    });
-    
-    function exportFeedback(resultId, format) {
-        window.open(`/export/${format}/${resultId}`, '_blank');
-    }
-    
-    // UI-Hilfsfunktionen
-    function showLoading(show) {
-        document.getElementById('loading').style.display = show ? 'block' : 'none';
-    }
-    
-    function showResults() {
-        document.getElementById('results').style.display = 'block';
-    }
-    
-    function hideResults() {
-        document.getElementById('results').style.display = 'none';
-    }
-    
-    function showError(message) {
-        document.getElementById('error').textContent = message;
-        document.getElementById('error').style.display = 'block';
-    }
-    
-    function hideError() {
-        document.getElementById('error').style.display = 'none';
-    }
-    
-    // Neue Analyse (ERWEITERT für Datei-Reset)
-    document.getElementById('newAnalysisBtn').addEventListener('click', function() {
-        document.getElementById('textInput').value = '';
-        document.getElementById('charCount').textContent = '0';
-        document.getElementById('fileInput').value = '';
-        document.getElementById('fileInfo').style.display = 'none';
-        hideResults();
-        hideError();
-    });
-    
-    // Initialisierung
-    console.log('WriteWise Frontend mit Datei-Upload geladen');
-</script>
+
+        // -------------------------
+        // Export-Funktionalität (Delegation)
+        // -------------------------
+        document.addEventListener('click', function(e) {
+            // Prüfen ob ein Export-Button geklickt wurde
+            if (e.target.classList.contains('export-btn')) {
+                // Format (txt/pdf) aus data-format lesen
+                const format = e.target.dataset.format;
+
+                // Ergebnis-ID aus data-resultid lesen
+                const resultId = e.target.dataset.resultid;
+
+                // Wenn keine ID gesetzt -> nichts exportierbar
+                if (!resultId) {
+                    showError('Kein Ergebnis zum Exportieren verfügbar');
+                    return;
+                }
+
+                // Export starten
+                exportFeedback(resultId, format);
+            }
+        });
+
+        // Öffnet den Export-Endpunkt in einem neuen Tab
+        function exportFeedback(resultId, format) {
+            window.open(`/export/${format}/${resultId}`, '_blank');
+        }
+
+        // -------------------------
+        // UI-Hilfsfunktionen
+        // -------------------------
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showResults() {
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        // -------------------------
+        // Neue Analyse starten (Reset)
+        // -------------------------
+        document.getElementById('newAnalysisBtn').addEventListener('click', function() {
+            // Eingaben zurücksetzen
+            document.getElementById('textInput').value = '';
+            document.getElementById('charCount').textContent = '0';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+
+            // UI-Elemente ausblenden
+            hideResults();
+            hideError();
+        });
+
+        // -------------------------
+        // Initialisierung / Debug
+        // -------------------------
+        console.log('WriteWise Frontend mit Datei-Upload geladen');
+    </script>
 </body>
 </html>
