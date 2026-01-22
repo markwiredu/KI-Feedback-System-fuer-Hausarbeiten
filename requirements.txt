@@ -1,9 +1,26 @@
+# LangChain Framework (Core) für LLM-Prompting & Chains
 langchain
+
+# Community-Erweiterungen (Loader, Tools, Integrationen)
 langchain-community
+
+# OpenAI/kompatible LLM-Anbindung für LangChain
 langchain-openai
+
+# Lädt Umgebungsvariablen aus einer .env-Datei
 python-dotenv
+
+# Datenmodelle + Validierung (für strukturiertes Feedback)
 pydantic
+
+# Flask Webframework für das Frontend/Backend
 flask==2.3.3
+
+# PDF-Text-Extraktion
 PyPDF2==3.0.1           
+
+# DOCX-Text-Extraktion
 python-docx==1.1.0     
-reportlab==4.0.7    
+
+# PDF-Export/Erstellung (ReportLab)
+reportlab==4.0.7
